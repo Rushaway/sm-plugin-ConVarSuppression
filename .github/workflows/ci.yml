@@ -6,17 +6,17 @@ permissions: {}
 
 jobs:
   build:
-    name: "Build"
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04]
-        include:
-          - os: ubuntu-24.04
+    permissions:
+      contents: read
+
+    name: Build and Package
+    runs-on: ubuntu-24.04 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Build sourcemod plugin
         uses: maxime1907/action-sourceknight@v1
@@ -29,11 +29,13 @@ jobs:
           cp -R .sourceknight/package/* /tmp/package
 
       - name: Upload build archive for test runners
-        id: build-artifact
         uses: actions/upload-artifact@v4
+        id: upload-artifact
         with:
           name: build-artifact
           path: /tmp/package
+          retention-days: 5
+          if-no-files-found: error
 
   tag:
     name: Tag
@@ -66,6 +68,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: build-artifact
+          path: dist/
 
       - name: Versioning
         run: |
