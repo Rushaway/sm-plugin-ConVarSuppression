@@ -27,7 +27,7 @@ jobs:
       - name: Upload build archive for test runners
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}
+          name: ${{ runner.os }}  # This is the name used for the artifact
           path: /tmp/package
 
   tag:
@@ -60,6 +60,9 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v5
+        with:
+          name: ${{ runner.os }}
+          path: dist
 
       - name: Versioning
         run: |
@@ -86,4 +89,3 @@ jobs:
           tag: ${{ env.RELEASE_VERSION }}
           file_glob: true
           overwrite: true
-
