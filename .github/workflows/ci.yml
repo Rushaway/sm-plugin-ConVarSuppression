@@ -2,6 +2,8 @@ name: CI
 
 on: [push, pull_request, workflow_dispatch]
 
+permissions: {}
+
 jobs:
   build:
     name: "Build"
@@ -13,7 +15,9 @@ jobs:
         include:
           - os: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Build sourcemod plugin
         uses: maxime1907/action-sourceknight@v1
         with:
@@ -25,9 +29,10 @@ jobs:
           cp -R .sourceknight/package/* /tmp/package
 
       - name: Upload build archive for test runners
+        id: build-artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}
+          name: build-artifact
           path: /tmp/package
 
   tag:
@@ -60,8 +65,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v5
         with:
-          name: ${{ runner.os }}
-          path: dist
+          name: build-artifact
 
       - name: Versioning
         run: |
